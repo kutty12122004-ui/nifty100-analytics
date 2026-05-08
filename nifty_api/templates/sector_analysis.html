@@ -1,0 +1,37 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Sector Analysis - Nifty 100 Analytics{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Sector Analysis</h1>
+    <p class="text-gray-600 mb-6">Performance across different sectors</p>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr><th class="px-4 py-2 text-left">Sector</th><th class="px-4 py-2 text-right">Companies</th><th class="px-4 py-2 text-right">Total Revenue</th><th class="px-4 py-2 text-right">Total Profit</th><th class="px-4 py-2 text-right">Avg OPM %</th></tr>
+            </thead>
+            <tbody id="sector-table"><tr><td colspan="5" class="text-center py-4">Loading...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    fetch('/api/sector-analysis/')
+        .then(r => r.json())
+        .then(data => {
+            const sectors = data.sectors || [];
+            const tableBody = document.getElementById('sector-table');
+            tableBody.innerHTML = sectors.map(s => `
+                <tr class="border-b">
+                    <td class="px-4 py-2 font-semibold">${s.sector}</td>
+                    <td class="px-4 py-2 text-right">${s.companies}</td>
+                    <td class="px-4 py-2 text-right">${(s.total_sales_cr / 1000).toFixed(0)}K Cr</td>
+                    <td class="px-4 py-2 text-right">${(s.total_profit_cr / 1000).toFixed(0)}K Cr</td>
+                    <td class="px-4 py-2 text-right">${s.avg_opm_pct}%</td>
+                </tr>
+            `).join('');
+        });
+</script>
+{% endblock %}

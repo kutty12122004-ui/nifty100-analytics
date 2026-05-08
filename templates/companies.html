@@ -1,0 +1,66 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Companies - Nifty 100 Analytics{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Nifty 100 Companies</h1>
+    <p class="text-gray-600 mb-6">Complete list of India's top companies</p>
+    
+    <div class="mb-6">
+        <input type="text" id="search-input" placeholder="Search by company name or symbol..." 
+               class="w-full md:w-96 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+    
+    <div id="companies-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="col-span-full text-center py-8">Loading companies...</div>
+    </div>
+</div>
+
+<script>
+    async function fetchCompanies() {
+        try {
+            const response = await fetch('/api/companies/');
+            const data = await response.json();
+            const companies = data.companies || [];
+            displayCompanies(companies);
+        } catch (error) {
+            document.getElementById('companies-grid').innerHTML = '<div class="col-span-full text-center py-8 text-red-500">Error loading companies</div>';
+        }
+    }
+    
+    function displayCompanies(companies) {
+        const grid = document.getElementById('companies-grid');
+        if (companies.length === 0) {
+            grid.innerHTML = '<div class="col-span-full text-center py-8">No companies found</div>';
+            return;
+        }
+        
+        grid.innerHTML = companies.map(company => `
+            <div class="border rounded-lg p-4 hover:shadow-lg transition cursor-pointer" onclick="window.location.href='/company/${company.symbol}/'">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">${company.symbol}</h3>
+                        <p class="text-gray-600 text-sm">${company.company_name}</p>
+                        <span class="inline-block mt-2 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">${company.sector || 'N/A'}</span>
+                    </div>
+                    <i class="fas fa-arrow-right text-gray-400"></i>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        fetch('/api/companies/').then(r => r.json()).then(data => {
+            const filtered = (data.companies || []).filter(c => 
+                c.symbol.toLowerCase().includes(searchTerm) || 
+                c.company_name.toLowerCase().includes(searchTerm)
+            );
+            displayCompanies(filtered);
+        });
+    });
+    
+    fetchCompanies();
+</script>
+{% endblock %}

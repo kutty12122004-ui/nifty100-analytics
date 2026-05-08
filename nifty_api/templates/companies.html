@@ -1,0 +1,47 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-3xl font-bold text-gray-800">Nifty 100 Companies</h1>
+    <input type="text" id="search" placeholder="Search companies..." class="mt-4 w-full md:w-96 px-4 py-2 border rounded-lg">
+    <div id="companies-list" class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</div>
+
+<script>
+    function fetchCompanies() {
+        fetch('/api/companies/')
+            .then(r => r.json())
+            .then(data => {
+                const container = document.getElementById('companies-list');
+                container.innerHTML = (data.companies || []).map(c => `
+                    <div class="border rounded-lg p-4 hover:shadow-lg cursor-pointer" onclick="location.href='/company/${c.symbol}/'">
+                        <h3 class="font-bold text-lg">${c.symbol}</h3>
+                        <p class="text-gray-600">${c.company_name}</p>
+                        <p class="text-sm text-blue-600 mt-2">${c.sector}</p>
+                    </div>
+                `).join('');
+            });
+    }
+    
+    fetchCompanies();
+    document.getElementById('search').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        fetch('/api/companies/')
+            .then(r => r.json())
+            .then(data => {
+                const filtered = (data.companies || []).filter(c => 
+                    c.symbol.toLowerCase().includes(term) || 
+                    c.company_name.toLowerCase().includes(term)
+                );
+                const container = document.getElementById('companies-list');
+                container.innerHTML = filtered.map(c => `
+                    <div class="border rounded-lg p-4 hover:shadow-lg cursor-pointer" onclick="location.href='/company/${c.symbol}/'">
+                        <h3 class="font-bold text-lg">${c.symbol}</h3>
+                        <p class="text-gray-600">${c.company_name}</p>
+                        <p class="text-sm text-blue-600 mt-2">${c.sector}</p>
+                    </div>
+                `).join('');
+            });
+    });
+</script>
+{% endblock %}

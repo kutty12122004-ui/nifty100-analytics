@@ -1,0 +1,70 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Company Details - Nifty 100 Analytics{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div id="company-detail">
+        <div class="text-center py-8">Loading company details...</div>
+    </div>
+    <div class="mt-6">
+        <button onclick="window.location.href='/companies/'" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+            ← Back to Companies
+        </button>
+    </div>
+</div>
+
+<script>
+    const symbol = '{{ symbol }}';
+    
+    async function fetchCompanyDetails() {
+        try {
+            const response = await fetch(`/api/companies/${symbol}/`);
+            const company = await response.json();
+            
+            if (company.error) {
+                document.getElementById('company-detail').innerHTML = `<div class="text-center py-8 text-red-500">${company.error}</div>`;
+                return;
+            }
+            
+            document.getElementById('company-detail').innerHTML = `
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">${company.symbol}</h1>
+                        <p class="text-gray-600 mt-1">${company.company_name}</p>
+                        <span class="inline-block mt-2 px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">${company.sector}</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <p class="text-sm text-blue-600">Revenue</p>
+                        <p class="text-2xl font-bold text-blue-800">₹${(company.revenue_cr || 0).toLocaleString()} Cr</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <p class="text-sm text-green-600">Net Profit</p>
+                        <p class="text-2xl font-bold text-green-800">₹${(company.net_profit_cr || 0).toLocaleString()} Cr</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4">
+                        <p class="text-sm text-purple-600">Market Cap</p>
+                        <p class="text-2xl font-bold text-purple-800">₹${(company.market_cap_cr || 0).toLocaleString()} Cr</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="border rounded-lg p-3 text-center">
+                        <p class="text-sm text-gray-500">OPM %</p>
+                        <p class="text-lg font-bold">${company.opm_pct || 0}%</p>
+                    </div>
+                    <div class="border rounded-lg p-3 text-center">
+                        <p class="text-sm text-gray-500">CEO</p>
+                        <p class="text-lg font-bold">${company.ceo || 'N/A'}</p>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            document.getElementById('company-detail').innerHTML = '<div class="text-center py-8 text-red-500">Error loading company details</div>';
+        }
+    }
+    
+    fetchCompanyDetails();
+</script>
+{% endblock %}

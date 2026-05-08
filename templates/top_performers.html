@@ -1,0 +1,37 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Top Performers - Nifty 100 Analytics{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Top Performers</h1>
+    <p class="text-gray-600 mb-6">Best performing Nifty 100 companies</p>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white">
+                <tr><th class="px-4 py-3 text-left">Rank</th><th class="px-4 py-3 text-left">Symbol</th><th class="px-4 py-3 text-left">Company</th><th class="px-4 py-3 text-right">Net Profit (Cr)</th><th class="px-4 py-3 text-right">Growth %</th></tr>
+            </thead>
+            <tbody id="performers-table"><tr><td colspan="5" class="text-center py-4">Loading...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    fetch('/api/top-performers/')
+        .then(r => r.json())
+        .then(data => {
+            const performers = data.top_performers || [];
+            const tableBody = document.getElementById('performers-table');
+            tableBody.innerHTML = performers.map(p => `
+                <tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="window.location.href='/company/${p.symbol}/'">
+                    <td class="px-4 py-3 font-bold">${p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : `#${p.rank}`}</td>
+                    <td class="px-4 py-3 font-semibold">${p.symbol}</td>
+                    <td class="px-4 py-3">${p.company_name}</td>
+                    <td class="px-4 py-3 text-right">${(p.net_profit_cr || 0).toLocaleString()}</td>
+                    <td class="px-4 py-3 text-right text-green-600">+${p.net_profit_growth}%</td>
+                </tr>
+            `).join('');
+        });
+</script>
+{% endblock %}
