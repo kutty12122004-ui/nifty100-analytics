@@ -2,10 +2,7 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-# ============================================================
-# 53 NIFTY COMPANIES - HARDCODED DATA
-# ============================================================
-
+# 23 Companies Data
 ALL_COMPANIES = [
     {"symbol": "RELIANCE", "company_name": "Reliance Industries", "sector": "Energy", "revenue_cr": 800000, "net_profit_cr": 68000, "opm_pct": 12.5},
     {"symbol": "TCS", "company_name": "Tata Consultancy Services", "sector": "IT", "revenue_cr": 240000, "net_profit_cr": 45000, "opm_pct": 25.5},
@@ -33,75 +30,28 @@ ALL_COMPANIES = [
 ]
 
 @csrf_exempt
-def health_check(request):
-    return JsonResponse({"message": "Nifty 100 API is live!", "status": "active", "version": "1.0.0"})
-
-@csrf_exempt
 def api_root(request):
-    return JsonResponse({
-        "message": "Nifty 100 Financial Intelligence API",
-        "version": "1.0.0",
-        "total_companies": len(ALL_COMPANIES),
-        "endpoints": {
-            "health": "/api/health/",
-            "companies": "/api/companies/",
-            "company_detail": "/api/companies/{symbol}/",
-            "top_performers": "/api/top-performers/",
-            "sector_analysis": "/api/sector-analysis/",
-        }
-    })
+    return JsonResponse({"message": "API Working", "total": len(ALL_COMPANIES)})
 
 @csrf_exempt
 def company_list(request):
-    return JsonResponse({'success': True, 'total': len(ALL_COMPANIES), 'companies': ALL_COMPANIES})
+    return JsonResponse({"success": True, "total": len(ALL_COMPANIES), "companies": ALL_COMPANIES})
 
 @csrf_exempt
-def company_detail(request, symbol):
-    for company in ALL_COMPANIES:
-        if company['symbol'] == symbol.upper():
-            return JsonResponse(company)
-    return JsonResponse({'error': 'Company not found'}, status=404)
-
-@csrf_exempt
-def top_performers(request):
-    sorted_companies = sorted(ALL_COMPANIES, key=lambda x: x['net_profit_cr'], reverse=True)[:15]
-    performers = []
-    for rank, company in enumerate(sorted_companies, 1):
-        performers.append({
-            'rank': rank, 'symbol': company['symbol'], 'company_name': company['company_name'],
-            'sector': company['sector'], 'net_profit_cr': company['net_profit_cr'],
-            'net_profit_growth': round(company['opm_pct'] * 0.8, 1)
-        })
-    return JsonResponse({'metric': 'net_profit', 'year': 'Mar 2024', 'top_performers': performers})
-
-@csrf_exempt
-def sector_analysis(request):
-    sectors = {}
-    for company in ALL_COMPANIES:
-        sector = company['sector']
-        if sector not in sectors:
-            sectors[sector] = {'total_sales_cr': 0, 'total_profit_cr': 0, 'companies': 0, 'avg_opm_pct': 0}
-        sectors[sector]['total_sales_cr'] += company['revenue_cr']
-        sectors[sector]['total_profit_cr'] += company['net_profit_cr']
-        sectors[sector]['companies'] += 1
-        sectors[sector]['avg_opm_pct'] += company['opm_pct']
-    for sector in sectors:
-        sectors[sector]['avg_opm_pct'] = round(sectors[sector]['avg_opm_pct'] / sectors[sector]['companies'], 1)
-    result = [{'sector': s, **sectors[s]} for s in sectors]
-    result.sort(key=lambda x: x['total_profit_cr'], reverse=True)
-    return JsonResponse({'year': 'Mar 2024', 'sectors': result})
+def health_check(request):
+    return JsonResponse({"status": "healthy", "message": "API is running"})
 
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    return render(request, "dashboard.html")
 
 def companies_list_page(request):
-    return render(request, 'companies.html')
+    return render(request, "companies.html")
 
 def company_detail_page(request, symbol):
-    return render(request, 'company_detail.html', {'symbol': symbol})
+    return render(request, "company_detail.html", {"symbol": symbol})
 
 def top_performers_page(request):
-    return render(request, 'top_performers.html')
+    return render(request, "top_performers.html")
 
 def sector_analysis_page(request):
-    return render(request, 'sector_analysis.html')
+    return render(request, "sector_analysis.html")
