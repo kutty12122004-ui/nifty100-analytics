@@ -1,47 +1,69 @@
 ﻿{% extends 'base.html' %}
 
+{% block title %}Companies - Nifty 100 Analytics{% endblock %}
+
 {% block content %}
 <div class="bg-white rounded-lg shadow-md p-6">
-    <h1 class="text-3xl font-bold text-gray-800">Nifty 100 Companies</h1>
-    <input type="text" id="search" placeholder="Search companies..." class="mt-4 w-full md:w-96 px-4 py-2 border rounded-lg">
-    <div id="companies-list" class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Nifty 100 Companies</h1>
+    <p class="text-gray-600 mb-6">Complete list of India's top companies</p>
+    
+    <div class="mb-4">
+        <input type="text" id="searchInput" placeholder="Search by company name or symbol..." 
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-4 py-2 text-left">Symbol</th>
+                    <th class="px-4 py-2 text-left">Company Name</th>
+                    <th class="px-4 py-2 text-left">Sector</th>
+                </tr>
+            </thead>
+            <tbody id="companies-table">
+                <tr><td colspan="3" class="text-center py-4">Loading companies...</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    function fetchCompanies() {
-        fetch('/api/companies/')
-            .then(r => r.json())
-            .then(data => {
-                const container = document.getElementById('companies-list');
-                container.innerHTML = (data.companies || []).map(c => `
-                    <div class="border rounded-lg p-4 hover:shadow-lg cursor-pointer" onclick="location.href='/company/${c.symbol}/'">
-                        <h3 class="font-bold text-lg">${c.symbol}</h3>
-                        <p class="text-gray-600">${c.company_name}</p>
-                        <p class="text-sm text-blue-600 mt-2">${c.sector}</p>
-                    </div>
-                `).join('');
-            });
+    async function loadCompanies() {
+        try {
+            const response = await fetch('/api/companies/');
+            const companies = await response.json();
+            
+            const tbody = document.getElementById('companies-table');
+            if (companies.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4">No companies found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = companies.map(c => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-4 py-2 font-mono font-semibold">${c.symbol}</td>
+                    <td class="px-4 py-2">
+                        <a href="/company/${c.symbol}" class="text-blue-600 hover:underline">${c.company_name}</a>
+                    </td>
+                    <td class="px-4 py-2">${c.sector || 'N/A'}</td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            document.getElementById('companies-table').innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-500">Error loading companies</td></tr>';
+        }
     }
     
-    fetchCompanies();
-    document.getElementById('search').addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        fetch('/api/companies/')
-            .then(r => r.json())
-            .then(data => {
-                const filtered = (data.companies || []).filter(c => 
-                    c.symbol.toLowerCase().includes(term) || 
-                    c.company_name.toLowerCase().includes(term)
-                );
-                const container = document.getElementById('companies-list');
-                container.innerHTML = filtered.map(c => `
-                    <div class="border rounded-lg p-4 hover:shadow-lg cursor-pointer" onclick="location.href='/company/${c.symbol}/'">
-                        <h3 class="font-bold text-lg">${c.symbol}</h3>
-                        <p class="text-gray-600">${c.company_name}</p>
-                        <p class="text-sm text-blue-600 mt-2">${c.sector}</p>
-                    </div>
-                `).join('');
-            });
+    // Search functionality
+    document.getElementById('searchInput')?.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#companies-table tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
     });
+    
+    loadCompanies();
 </script>
 {% endblock %}
