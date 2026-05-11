@@ -1,16 +1,15 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Sum, Avg, Count
 from .models import DimCompany, DimYear, FactProfitLoss
 
 def dashboard(request):
-    """Dashboard view"""
+    """Dashboard view - simplified for debugging"""
     try:
-        companies = DimCompany.objects.all()
-        total_companies = companies.count()
+        total_companies = DimCompany.objects.count()
         
         # Count sectors
-        sectors_count = companies.exclude(sector='').exclude(sector__isnull=True).values('sector').distinct().count()
+        sectors_count = DimCompany.objects.exclude(sector='').exclude(sector__isnull=True).values('sector').distinct().count()
         
         # Get latest year data
         latest_year = DimYear.objects.filter(year_label='2024').first()
@@ -36,6 +35,7 @@ def dashboard(request):
         }
         return render(request, 'dashboard.html', context)
     except Exception as e:
+        # Fallback if anything fails
         return render(request, 'dashboard.html', {
             'total_companies': 92,
             'total_sectors': 12,
@@ -64,17 +64,7 @@ def top_performers_page(request):
 
 def sector_analysis_page(request):
     """Sector analysis page"""
-    latest_year = DimYear.objects.filter(year_label='2024').first()
-    if latest_year:
-        sectors = FactProfitLoss.objects.filter(year=latest_year).select_related('symbol').values('symbol__sector').annotate(
-            companies=Count('symbol', distinct=True),
-            total_sales=Sum('sales'),
-            total_profit=Sum('net_profit'),
-            avg_opm=Avg('opm_pct')
-        ).exclude(symbol__sector='').exclude(symbol__sector__isnull=True)
-    else:
-        sectors = []
-    return render(request, 'sector_analysis.html', {'sectors': sectors})
+    return render(request, 'sector_analysis.html')
 
 # API Endpoints
 def api_company_list(request):
