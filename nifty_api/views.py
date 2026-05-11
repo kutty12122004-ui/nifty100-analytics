@@ -48,13 +48,11 @@ def company_detail_page(request, symbol):
     return render(request, 'company_detail.html', {'company': company})
 
 def top_performers_page(request):
-    latest_year = DimYear.objects.filter(year_label='2024').first()
-    if latest_year:
-        top_companies = FactProfitLoss.objects.filter(year=latest_year).select_related('symbol').order_by('-net_profit')[:15]
-    else:
-        top_companies = []
-    return render(request, 'top_performers.html', {'companies': top_companies})
-
+    """Top performers page - sorted by book value"""
+    companies = DimCompany.objects.all().order_by('-book_value')[:20]  # Top 20
+    context = {'companies': companies}
+    return render(request, 'top_performers.html', context)
+    
 def sector_analysis_page(request):
     return render(request, 'sector_analysis.html')
 

@@ -1,66 +1,80 @@
-﻿{% extends 'base.html' %}
-
-{% block title %}Companies - Nifty 100 Analytics{% endblock %}
-
-{% block content %}
-<div class="bg-white rounded-lg shadow-md p-6">
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">Nifty 100 Companies</h1>
-    <p class="text-gray-600 mb-6">Complete list of India's top companies</p>
-    
-    <div class="mb-6">
-        <input type="text" id="search-input" placeholder="Search by company name or symbol..." 
-               class="w-full md:w-96 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-    </div>
-    
-    <div id="companies-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="col-span-full text-center py-8">Loading companies...</div>
-    </div>
-</div>
-
-<script>
-    async function fetchCompanies() {
-        try {
-            const response = await fetch('/api/companies/');
-            const data = await response.json();
-            const companies = data.companies || [];
-            displayCompanies(companies);
-        } catch (error) {
-            document.getElementById('companies-grid').innerHTML = '<div class="col-span-full text-center py-8 text-red-500">Error loading companies</div>';
-        }
-    }
-    
-    function displayCompanies(companies) {
-        const grid = document.getElementById('companies-grid');
-        if (companies.length === 0) {
-            grid.innerHTML = '<div class="col-span-full text-center py-8">No companies found</div>';
-            return;
-        }
-        
-        grid.innerHTML = companies.map(company => `
-            <div class="border rounded-lg p-4 hover:shadow-lg transition cursor-pointer" onclick="window.location.href='/company/${company.symbol}/'">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="font-bold text-lg text-gray-800">${company.symbol}</h3>
-                        <p class="text-gray-600 text-sm">${company.company_name}</p>
-                        <span class="inline-block mt-2 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">${company.sector || 'N/A'}</span>
-                    </div>
-                    <i class="fas fa-arrow-right text-gray-400"></i>
-                </div>
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Companies - Nifty 100 Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-indigo-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">📊 Nifty 100 Analytics</h1>
+            <div class="space-x-6">
+                <a href="/" class="hover:underline">Dashboard</a>
+                <a href="/companies/" class="hover:underline font-bold">Companies</a>
+                <a href="/sector-analysis/" class="hover:underline">Sectors</a>
+                <a href="/top-performers/" class="hover:underline">Top Performers</a>
             </div>
-        `).join('');
-    }
-    
-    document.getElementById('search-input').addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        fetch('/api/companies/').then(r => r.json()).then(data => {
-            const filtered = (data.companies || []).filter(c => 
-                c.symbol.toLowerCase().includes(searchTerm) || 
-                c.company_name.toLowerCase().includes(searchTerm)
-            );
-            displayCompanies(filtered);
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-8">
+        <h2 class="text-3xl font-bold mb-4">Nifty 100 Companies</h2>
+        <p class="text-gray-600 mb-8">Complete list of India's top companies</p>
+
+        <!-- Search Box -->
+        <input type="text" id="searchBox" placeholder="Search by company name or symbol..." 
+               class="w-full p-3 border border-gray-300 rounded-lg mb-6">
+
+        <!-- Companies Table -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Symbol</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Face Value</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Book Value</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Website</th>
+                    </tr>
+                </thead>
+                <tbody id="companiesTable" class="divide-y divide-gray-200">
+                    {% for company in companies %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ company.symbol }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ company.company_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{{ company.face_value }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{{ company.book_value }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
+                            {% if company.website %}
+                            <a href="{{ company.website }}" target="_blank" class="hover:underline">Visit</a>
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <p class="mt-4 text-gray-600">Total: {{ companies|length }} companies</p>
+    </div>
+
+    <script>
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#companiesTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
         });
-    });
-    
-    fetchCompanies();
-</script>
-{% endblock %}
+    </script>
+</body>
+</html>
