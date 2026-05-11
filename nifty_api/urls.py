@@ -10,7 +10,6 @@ urlpatterns = [
     path('sector-analysis/', views.sector_analysis_page, name='sector_analysis'),
     
     # API endpoints
-    path('api/', views.api_root, name='api_root'),
     path('api/companies/', views.api_company_list, name='api_company_list'),
     path('api/dashboard-stats/', views.api_dashboard_stats, name='api_dashboard_stats'),
     path('api/sector-analysis/', views.api_sector_analysis, name='api_sector_analysis'),

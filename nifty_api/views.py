@@ -1,17 +1,14 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Sum, Avg, Count
 from .models import DimCompany, DimYear, FactProfitLoss
 
 def dashboard(request):
-    """Dashboard view - simplified for debugging"""
+    """Dashboard view"""
     try:
         total_companies = DimCompany.objects.count()
-        
-        # Count sectors
         sectors_count = DimCompany.objects.exclude(sector='').exclude(sector__isnull=True).values('sector').distinct().count()
         
-        # Get latest year data
         latest_year = DimYear.objects.filter(year_label='2024').first()
         
         if latest_year:
@@ -35,7 +32,6 @@ def dashboard(request):
         }
         return render(request, 'dashboard.html', context)
     except Exception as e:
-        # Fallback if anything fails
         return render(request, 'dashboard.html', {
             'total_companies': 92,
             'total_sectors': 12,
@@ -44,17 +40,14 @@ def dashboard(request):
         })
 
 def companies_list_page(request):
-    """Companies list page"""
     companies = DimCompany.objects.all()
     return render(request, 'companies.html', {'companies': companies})
 
 def company_detail_page(request, symbol):
-    """Company detail page"""
     company = get_object_or_404(DimCompany, symbol=symbol)
     return render(request, 'company_detail.html', {'company': company})
 
 def top_performers_page(request):
-    """Top performers page"""
     latest_year = DimYear.objects.filter(year_label='2024').first()
     if latest_year:
         top_companies = FactProfitLoss.objects.filter(year=latest_year).select_related('symbol').order_by('-net_profit')[:15]
@@ -63,10 +56,9 @@ def top_performers_page(request):
     return render(request, 'top_performers.html', {'companies': top_companies})
 
 def sector_analysis_page(request):
-    """Sector analysis page"""
     return render(request, 'sector_analysis.html')
 
-# API Endpoints
+# API endpoints
 def api_company_list(request):
     companies = DimCompany.objects.all().values('symbol', 'company_name', 'sector')
     return JsonResponse(list(companies), safe=False)
