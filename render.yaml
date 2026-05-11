@@ -2,11 +2,8 @@
   - type: web
     name: nifty100-analytics
     runtime: python
-    plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn nifty100_project.wsgi:application"
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
-      - key: DEBUG
-        value: "False"
+    buildCommand: |
+      pip install -r requirements.txt
+      python import_data_render.py
+      python manage.py collectstatic --noinput
+    startCommand: gunicorn nifty100_project.wsgi:application
