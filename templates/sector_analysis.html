@@ -3,35 +3,107 @@
 {% block title %}Sector Analysis - Nifty 100 Analytics{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-lg shadow-md p-6">
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">Sector Analysis</h1>
-    <p class="text-gray-600 mb-6">Performance across different sectors</p>
-    
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50">
-                <tr><th class="px-4 py-2 text-left">Sector</th><th class="px-4 py-2 text-right">Companies</th><th class="px-4 py-2 text-right">Total Revenue</th><th class="px-4 py-2 text-right">Total Profit</th><th class="px-4 py-2 text-right">Avg OPM %</th></tr>
-            </thead>
-            <tbody id="sector-table"><tr><td colspan="5" class="text-center py-4">Loading...</td></tr></tbody>
-        </table>
+<div class="space-y-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-md p-6 text-white">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-sm opacity-90">Total Sectors</p>
+                    <p class="text-3xl font-bold mt-2">{{ sectors|length }}</p>
+                </div>
+                <i class="fas fa-chart-pie text-4xl opacity-50"></i>
+            </div>
+        </div>
+        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-md p-6 text-white">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-sm opacity-90">Highest Revenue Sector</p>
+                    <p class="text-xl font-bold mt-2 truncate">
+                        {% with sectors|first as top %}{{ top.sector }}{% endwith %}
+                    </p>
+                </div>
+                <i class="fas fa-trophy text-4xl opacity-50"></i>
+            </div>
+        </div>
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-md p-6 text-white">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-sm opacity-90">Total Companies</p>
+                    <p class="text-3xl font-bold mt-2">
+                        {% for sector in sectors %}{% with forloop.counter0 as i %}{% if i == 0 %}{{ sector.companies }}{% endif %}{% endwith %}{% endfor %}
+                    </p>
+                </div>
+                <i class="fas fa-building text-4xl opacity-50"></i>
+            </div>
+        </div>
+        <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-md p-6 text-white">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-sm opacity-90">Best OPM Sector</p>
+                    <p class="text-xl font-bold mt-2 truncate">--</p>
+                </div>
+                <i class="fas fa-chart-line text-4xl opacity-50"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Table -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Sector Analysis</h1>
+        <p class="text-gray-600 mb-6">Performance across {{ sectors|length }} different sectors</p>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Sector</th>
+                        <th class="px-4 py-2 text-right">Companies</th>
+                        <th class="px-4 py-2 text-right">Total Revenue</th>
+                        <th class="px-4 py-2 text-right">Total Profit</th>
+                        <th class="px-4 py-2 text-right">Avg OPM %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sector in sectors %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2 font-semibold">{{ sector.sector }}</td>
+                        <td class="px-4 py-2 text-right">{{ sector.companies }}</td>
+                        <td class="px-4 py-2 text-right">
+                            {% if sector.total_sales %}
+                                {{ sector.total_sales|floatformat:0 }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-right">
+                            {% if sector.total_profit %}
+                                {{ sector.total_profit|floatformat:0 }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-right">
+                            {% if sector.avg_opm %}
+                                <span class="px-2 py-1 rounded-full 
+                                    {% if sector.avg_opm > 20 %}bg-green-100 text-green-700
+                                    {% elif sector.avg_opm > 10 %}bg-yellow-100 text-yellow-700
+                                    {% else %}bg-red-100 text-red-700{% endif %}">
+                                    {{ sector.avg_opm|floatformat:1 }}%
+                                </span>
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-gray-500">No sector data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-
-<script>
-    fetch('/api/sector-analysis/')
-        .then(r => r.json())
-        .then(data => {
-            const sectors = data.sectors || [];
-            const tableBody = document.getElementById('sector-table');
-            tableBody.innerHTML = sectors.map(s => `
-                <tr class="border-b">
-                    <td class="px-4 py-2 font-semibold">${s.sector}</td>
-                    <td class="px-4 py-2 text-right">${s.companies}</td>
-                    <td class="px-4 py-2 text-right">${(s.total_sales_cr / 1000).toFixed(0)}K Cr</td>
-                    <td class="px-4 py-2 text-right">${(s.total_profit_cr / 1000).toFixed(0)}K Cr</td>
-                    <td class="px-4 py-2 text-right">${s.avg_opm_pct}%</td>
-                </tr>
-            `).join('');
-        });
-</script>
 {% endblock %}
