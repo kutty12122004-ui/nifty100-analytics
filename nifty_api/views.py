@@ -4,6 +4,8 @@ from django.db.models import Sum, Avg, Count, F, Value, FloatField, Q
 from django.db.models.functions import Coalesce
 from .models import DimCompany, DimYear, FactProfitLoss, FactBalanceSheet
 
+# ==================== FRONTEND PAGE VIEWS ====================
+
 def dashboard(request):
     """Dashboard view with real financial data"""
     companies = DimCompany.objects.all()
@@ -191,12 +193,13 @@ def sector_analysis_page(request):
     
     return render(request, 'sector_analysis.html', context)
 
-# API Endpoints
+# ==================== API ENDPOINTS ====================
 
 def api_root(request):
-    """API root"""
+    """API root - lists all available endpoints"""
     return JsonResponse({
         'message': 'Nifty 100 Analytics API',
+        'status': 'operational',
         'endpoints': {
             'companies': '/api/companies/',
             'companies_full': '/api/companies/all/',
@@ -276,7 +279,7 @@ def api_dashboard_stats(request):
         total_profit = yearly_data.aggregate(total=Coalesce(Sum('net_profit'), Value(0)))['total']
         avg_opm = yearly_data.aggregate(avg=Coalesce(Avg('opm_pct'), Value(0)))['avg']
         
-        # Get top sector
+        # Get top sector by revenue
         top_sector_data = yearly_data.select_related('symbol').values('symbol__sector').annotate(
             total_rev=Coalesce(Sum('sales'), Value(0))
         ).exclude(symbol__sector='').exclude(symbol__sector__isnull=True).order_by('-total_rev').first()
@@ -291,6 +294,7 @@ def api_dashboard_stats(request):
             'total_companies': DimCompany.objects.count(),
             'total_sectors': DimCompany.objects.exclude(sector='').exclude(sector__isnull=True).values('sector').distinct().count(),
             'total_revenue': formatted_revenue,
+            'total_profit_cr': float(total_profit),
             'avg_opm': round(float(avg_opm), 1),
             'top_sector': top_sector_data['symbol__sector'] if top_sector_data else 'N/A',
         })
@@ -299,6 +303,7 @@ def api_dashboard_stats(request):
             'total_companies': DimCompany.objects.count(),
             'total_sectors': 0,
             'total_revenue': '0 Cr',
+            'total_profit_cr': 0,
             'avg_opm': 0,
             'top_sector': 'N/A',
         })
@@ -328,10 +333,12 @@ def api_company_detail(request, symbol):
     })
 
 def api_health(request):
-    """API: Health check"""
+    """API: Health check for the application"""
     return JsonResponse({
-        'status': 'ok',
+        'status': 'healthy',
+        'timestamp': '2026-05-11',
         'companies_count': DimCompany.objects.count(),
         'profit_loss_records': FactProfitLoss.objects.count(),
+        'balance_sheet_records': FactBalanceSheet.objects.count(),
         'latest_year': DimYear.objects.order_by('-year_label').first().year_label if DimYear.objects.exists() else None,
     })
