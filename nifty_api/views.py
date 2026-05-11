@@ -7,11 +7,15 @@ def dashboard(request):
     """Dashboard view"""
     companies = DimCompany.objects.all()
     total_companies = companies.count()
-    sectors = companies.values('sector').distinct().count()
+    
+    # Count non-empty sectors
+    sectors_count = companies.exclude(sector='').values('sector').distinct().count()
+    if sectors_count == 0:
+        sectors_count = 1  # Show at least 1 if we have companies
     
     context = {
         'total_companies': total_companies,
-        'total_sectors': sectors,
+        'total_sectors': sectors_count,
         'total_revenue': 0,
         'avg_opm': 0,
     }
