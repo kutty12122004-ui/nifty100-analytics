@@ -1,36 +1,42 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Sum, Avg, Count
-from .models import DimCompany, DimYear, FactProfitLoss
+from django.db.models import Sum, Avg
 
 def dashboard(request):
-    """Dashboard view"""
-    try:
-        total_companies = DimCompany.objects.count()
-        sectors_count = DimCompany.objects.exclude(sector='').exclude(sector__isnull=True).values('sector').distinct().count()
-        
-        latest_year = DimYear.objects.filter(year_label='2024').first()
-        
-        if latest_year:
-            yearly_data = FactProfitLoss.objects.filter(year=latest_year)
-            total_revenue = yearly_data.aggregate(total=Sum('sales'))['total'] or 0
-            avg_opm = yearly_data.aggregate(avg=Avg('opm_pct'))['avg'] or 0
-            
-            if total_revenue >= 1000:
-                formatted_revenue = f"{total_revenue/1000:.1f}L Cr"
-            else:
-                formatted_revenue = f"{total_revenue:.0f} Cr"
-        else:
-            formatted_revenue = "54.3L Cr"
-            avg_opm = 14.5
-        
-        context = {
-            'total_companies': total_companies,
-            'total_sectors': sectors_count if sectors_count > 0 else 12,
-            'total_revenue': formatted_revenue,
-            'avg_opm': round(avg_opm, 1),
-        }
-        return render(request, 'dashboard.html', context)
+    """Dashboard view with real financial data"""
+    companies = DimCompany.objects.all()
+    total_companies = companies.count()
+    
+    # Count non-empty sectors
+    sectors_count = companies.exclude(sector='').values('sector').distinct().count()
+    if sectors_count == 0:
+        sectors_count = 1
+    
+    # Calculate REAL financial metrics from FactProfitLoss
+    financial_data = FactProfitLoss.objects.aggregate(
+        total_sales=Sum('sales'),
+        total_profit=Sum('net_profit'),
+        avg_opm=Avg('opm_pct')
+    )
+    
+    # Format revenue in Lakhs Crores (L Cr)
+    total_revenue = financial_data['total_sales'] or 0
+    if total_revenue > 0:
+        formatted_revenue = f"{total_revenue / 100000:.1f}L Cr"
+    else:
+        formatted_revenue = "0"
+    
+    # Format OPM percentage
+    avg_opm = financial_data['avg_opm'] or 0
+    formatted_opm = f"{avg_opm:.1f}%"
+    
+    context = {
+        'total_companies': total_companies,
+        'total_sectors': sectors_count,
+        'total_revenue': formatted_revenue,
+        'avg_opm': formatted_opm,
+    }
+    return render(request, 'dashboard.html', context)
     except Exception as e:
         return render(request, 'dashboard.html', {
             'total_companies': 92,
