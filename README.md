@@ -1,27 +1,27 @@
-# 📊 Nifty 100 Financial Intelligence System
+#  Nifty 100 Financial Intelligence System
 
 A comprehensive financial analytics platform for India's top 100 publicly listed companies.
 
-## 🚀 Features
+##  Features
 
-### 📈 Data Engineering
+###  Data Engineering
 - ETL Pipeline (Extract, Transform, Load)
 - PostgreSQL/SQLite Data Warehouse
 - Star Schema Design with Dimension & Fact Tables
 
-### 🔌 REST API
+### REST API
 - 7+ Production-ready endpoints
 - Company financial data
 - Top performers ranking
 - Sector-wise analysis
 
-### 🎨 Web Dashboard
+###  Web Dashboard
 - Interactive company dashboard
 - Search and filter companies
 - Responsive mobile design
 - Real-time data visualization
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Category | Technology |
 |----------|-----------|
@@ -32,7 +32,7 @@ A comprehensive financial analytics platform for India's top 100 publicly listed
 | ETL | Pandas, NumPy |
 | Version Control | Git, GitHub |
 
-## 📡 API Endpoints
+##  API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -44,7 +44,7 @@ A comprehensive financial analytics platform for India's top 100 publicly listed
 | `/api/top-performers/` | GET | Top 15 performers |
 | `/api/sector-analysis/` | GET | Sector-wise analysis |
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 - Python 3.11+
