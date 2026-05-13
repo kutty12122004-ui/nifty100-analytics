@@ -101,3 +101,4 @@ def sector_analysis_page(request):
     return render(request, 'sector_analysis.html')
 
 # Force update - 05/13/2026 10:29:18
+# Force update - 05/13/2026 11:07:27
