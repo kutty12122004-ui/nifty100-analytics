@@ -1,4 +1,4 @@
-﻿from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Sum, Avg, Count, Q
 from django.views.decorators.csrf import csrf_exempt
@@ -99,3 +99,5 @@ def top_performers_page(request):
 
 def sector_analysis_page(request):
     return render(request, 'sector_analysis.html')
+
+# Force update - 05/13/2026 10:29:18
