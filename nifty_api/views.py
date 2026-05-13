@@ -1,112 +1,101 @@
-from django.http import JsonResponse
+﻿from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Sum, Avg, Count
-from .models import DimCompany, FactProfitLoss, FactBalanceSheet
+from django.db.models import Sum, Avg, Count, Q
+from django.views.decorators.csrf import csrf_exempt
+from .models import DimCompany, DimYear, FactProfitLoss, FactBalanceSheet
 
-def dashboard(request):
-    """Dashboard view with real financial data"""
-    companies = DimCompany.objects.all()
-    total_companies = companies.count()
-    
-    # Count non-empty sectors
-    sectors_count = companies.exclude(sector='').values('sector').distinct().count()
-    if sectors_count == 0:
-        sectors_count = 1
-    
-    # Calculate REAL financial metrics from FactProfitLoss
-    financial_data = FactProfitLoss.objects.aggregate(
-        total_sales=Sum('sales'),
-        total_profit=Sum('net_profit'),
-        avg_opm=Avg('opm_pct')
-    )
-    
-    # Format revenue in Lakhs Crores (L Cr)
-    total_revenue = financial_data['total_sales'] or 0
-    if total_revenue > 0:
-        formatted_revenue = f"{total_revenue / 100000:.1f}L Cr"
-    else:
-        formatted_revenue = "0"
-    
-    # Format OPM percentage
-    avg_opm = financial_data['avg_opm'] or 0
-    formatted_opm = f"{avg_opm:.1f}%"
-    
-    context = {
-        'total_companies': total_companies,
-        'total_sectors': sectors_count,
-        'total_revenue': formatted_revenue,
-        'avg_opm': formatted_opm,
-    }
-    return render(request, 'dashboard.html', context)
-
-def companies_list_page(request):
-    """Companies list page"""
-    companies = DimCompany.objects.all()
-    context = {'companies': companies}
-    return render(request, 'companies.html', context)
-
-def company_detail_page(request, symbol):
-    """Company detail page"""
-    company = get_object_or_404(DimCompany, symbol=symbol)
-    context = {'company': company}
-    return render(request, 'company_detail.html', context)
-
-def top_performers_page(request):
-    """Top performers page - sorted by book value"""
-    companies = DimCompany.objects.all().order_by('-book_value')[:20]
-    context = {'companies': companies}
-    return render(request, 'top_performers.html', context)
-
-def sector_analysis_page(request):
-<<<<<<< HEAD
-    return render(request, "sector_analysis.html")
-@csrf_exempt
-def company_financials(request, symbol):
-    """Get historical financial data for a company"""
-    historical_data = {
-        "TCS": [
-            {'year': 'Mar 2024', 'sales': 240000, 'net_profit': 45000, 'opm': 25.5, 'eps': 125.00},
-            {'year': 'Mar 2023', 'sales': 215000, 'net_profit': 40000, 'opm': 24.8, 'eps': 112.00},
-        ],
-        "RELIANCE": [
-            {'year': 'Mar 2024', 'sales': 800000, 'net_profit': 68000, 'opm': 12.5, 'eps': 102.00},
-            {'year': 'Mar 2023', 'sales': 750000, 'net_profit': 62000, 'opm': 11.8, 'eps': 93.00},
-        ],
-    }
-    symbol_upper = symbol.upper()
-    if symbol_upper in historical_data:
-        return JsonResponse({'symbol': symbol_upper, 'historical_data': historical_data[symbol_upper]})
-    return JsonResponse({'error': 'Financial data not found'}, status=404)
-=======
-    """Sector analysis page"""
-    sectors = DimCompany.objects.values('sector').annotate(
-        count=Count('symbol')
-    ).order_by('-count')
-    context = {'sectors': sectors}
-    return render(request, 'sector_analysis.html', context)
+# ===================== API VIEWS =====================
 
 def api_root(request):
-    """API root"""
     return JsonResponse({
-        'message': 'Nifty 100 Analytics API',
+        'message': 'Nifty 100 Financial Intelligence API',
         'endpoints': {
             'companies': '/api/companies/',
             'health': '/api/health/',
+            'top_performers': '/api/top-performers/',
+            'sector_analysis': '/api/sector-analysis/',
         }
     })
 
+def health_check(request):
+    return JsonResponse({
+        'status': 'ok',
+        'message': 'API is running',
+        'companies': DimCompany.objects.count()
+    })
+
 def company_list(request):
-    """API: List all companies"""
-    companies = DimCompany.objects.all().values(
-        'symbol', 'company_name', 'sector', 'sub_sector', 
+    companies = DimCompany.objects.values(
+        'symbol', 'company_name', 'sector', 'sub_sector',
         'website', 'face_value', 'book_value'
     )
     return JsonResponse(list(companies), safe=False)
 
-def health_check(request):
-    """API: Health check"""
+def company_detail(request, symbol):
+    company = get_object_or_404(DimCompany, symbol=symbol.upper())
     return JsonResponse({
-        'status': 'ok',
-        'companies_count': DimCompany.objects.count()
+        'symbol': company.symbol,
+        'company_name': company.company_name,
+        'sector': company.sector,
     })
->>>>>>> 64f8e1e2fd3b3683352ba7168683eb7bcab6ddf8
+
+def top_performers(request):
+    companies = DimCompany.objects.order_by('-book_value')[:20]
+    data = [{'symbol': c.symbol, 'company_name': c.company_name, 'book_value': float(c.book_value or 0)} for c in companies]
+    return JsonResponse({'top_performers': data})
+
+def sector_analysis(request):
+    sectors = DimCompany.objects.values('sector').annotate(
+        count=Count('symbol')
+    ).order_by('-count')
+    return JsonResponse(list(sectors), safe=False)
+
+# ===================== PAGE VIEWS =====================
+
+def dashboard(request):
+    companies = DimCompany.objects.all()
+    total_companies = companies.count()
+    sectors_count = companies.exclude(sector='').values('sector').distinct().count()
+    if sectors_count == 0:
+        sectors_count = 1
+
+    latest_year = DimYear.objects.order_by('-sort_order').first()
+
+    if latest_year:
+        financial = FactProfitLoss.objects.filter(year=latest_year).aggregate(
+            total_sales=Sum('sales'), total_profit=Sum('net_profit'), avg_opm=Avg('opm_pct')
+        )
+    else:
+        financial = FactProfitLoss.objects.aggregate(
+            total_sales=Sum('sales'), total_profit=Sum('net_profit'), avg_opm=Avg('opm_pct')
+        )
+
+    total_sales = financial.get('total_sales') or 0
+    total_profit = financial.get('total_profit') or 0
+    avg_opm = financial.get('avg_opm') or 0
+
+    if avg_opm > 100 or avg_opm < 0:
+        if total_sales > 0:
+            avg_opm = (total_profit / total_sales) * 100
+
+    formatted_revenue = f"{total_sales / 100000:.1f}L Cr" if total_sales > 0 else "0"
+
+    context = {
+        'total_companies': total_companies,
+        'total_sectors': sectors_count,
+        'total_revenue': formatted_revenue,
+        'avg_opm': f"{avg_opm:.1f}%",
+    }
+    return render(request, 'dashboard.html', context)
+
+def companies_list_page(request):
+    return render(request, 'companies.html')
+
+def company_detail_page(request, symbol):
+    return render(request, 'company_detail.html', {'symbol': symbol})
+
+def top_performers_page(request):
+    return render(request, 'top_performers.html')
+
+def sector_analysis_page(request):
+    return render(request, 'sector_analysis.html')
