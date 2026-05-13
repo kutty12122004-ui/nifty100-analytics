@@ -12,7 +12,7 @@ class DimCompany(models.Model):
     book_value = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     
     class Meta:
-        managed = False  # Important: Don't let Django modify the table
+        managed = True  # Important: Don't let Django modify the table
         db_table = 'dim_company'  # Exact table name in PostgreSQL
     
     def __str__(self):
@@ -26,7 +26,7 @@ class DimYear(models.Model):
     sort_order = models.IntegerField(null=True, blank=True)
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'dim_year'
     
     def __str__(self):
@@ -44,7 +44,7 @@ class FactProfitLoss(models.Model):
     net_profit_margin_pct = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'fact_profit_loss'
     
     def __str__(self):
@@ -60,7 +60,7 @@ class FactBalanceSheet(models.Model):
     debt_to_equity = models.DecimalField(max_digits=15, decimal_places=4, null=True, blank=True)
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'fact_balance_sheet'
 
 class FactCashFlow(models.Model):
@@ -72,5 +72,5 @@ class FactCashFlow(models.Model):
     free_cash_flow = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'fact_cash_flow'

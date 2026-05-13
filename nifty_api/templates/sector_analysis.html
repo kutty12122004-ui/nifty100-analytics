@@ -3,35 +3,105 @@
 {% block title %}Sector Analysis - Nifty 100 Analytics{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-lg shadow-md p-6">
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">Sector Analysis</h1>
-    <p class="text-gray-600 mb-6">Performance across different sectors</p>
-    
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50">
-                <tr><th class="px-4 py-2 text-left">Sector</th><th class="px-4 py-2 text-right">Companies</th><th class="px-4 py-2 text-right">Total Revenue</th><th class="px-4 py-2 text-right">Total Profit</th><th class="px-4 py-2 text-right">Avg OPM %</th></tr>
-            </thead>
-            <tbody id="sector-table"><tr><td colspan="5" class="text-center py-4">Loading...</td></tr></tbody>
-        </table>
+<div class="space-y-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+            <p class="text-sm opacity-90">Total Sectors</p>
+            <p id="total-sectors" class="text-3xl font-bold mt-2">--</p>
+        </div>
+        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white">
+            <p class="text-sm opacity-90">Highest Revenue Sector</p>
+            <p id="top-sector" class="text-xl font-bold mt-2 truncate">--</p>
+        </div>
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white">
+            <p class="text-sm opacity-90">Total Companies</p>
+            <p id="total-companies" class="text-3xl font-bold mt-2">--</p>
+        </div>
+        <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-6 text-white">
+            <p class="text-sm opacity-90">Best OPM Sector</p>
+            <p id="best-opm-sector" class="text-xl font-bold mt-2 truncate">--</p>
+        </div>
+    </div>
+
+    <!-- Main Table -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Sector Analysis</h1>
+        <p class="text-gray-600 mb-6">Performance across different sectors</p>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Sector</th>
+                        <th class="px-4 py-2 text-right">Companies</th>
+                        <th class="px-4 py-2 text-right">Total Revenue</th>
+                        <th class="px-4 py-2 text-right">Total Profit</th>
+                        <th class="px-4 py-2 text-right">Avg OPM %</th>
+                    </tr>
+                </thead>
+                <tbody id="sector-table">
+                    <tr><td colspan="5" class="text-center py-4">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-    fetch('/api/sector-analysis/')
-        .then(r => r.json())
-        .then(data => {
-            const sectors = data.sectors || [];
+    async function loadSectorData() {
+        try {
+            // Fetch companies to calculate sectors
+            const response = await fetch('/api/companies/');
+            const companies = await response.json();
+            
+            // Calculate sector statistics
+            const sectorMap = new Map();
+            
+            companies.forEach(company => {
+                const sector = company.sector || 'Other';
+                if (!sectorMap.has(sector)) {
+                    sectorMap.set(sector, { companies: 0, sector: sector });
+                }
+                sectorMap.get(sector).companies++;
+            });
+            
+            const sectors = Array.from(sectorMap.values()).sort((a, b) => b.companies - a.companies);
+            
+            // Update stats cards
+            document.getElementById('total-sectors').textContent = sectors.length;
+            document.getElementById('total-companies').textContent = companies.length;
+            document.getElementById('top-sector').textContent = sectors[0]?.sector || 'N/A';
+            
+            // Find sector with most companies as best OPM (placeholder)
+            let bestOpmSector = sectors.reduce((best, current) => {
+                return (current.companies > best.companies) ? current : best;
+            }, { sector: 'N/A', companies: 0 });
+            document.getElementById('best-opm-sector').textContent = bestOpmSector.sector;
+            
+            // Update table
             const tableBody = document.getElementById('sector-table');
+            if (sectors.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">No sector data available</td></tr>';
+                return;
+            }
+            
             tableBody.innerHTML = sectors.map(s => `
-                <tr class="border-b">
+                <tr class="border-b hover:bg-gray-50">
                     <td class="px-4 py-2 font-semibold">${s.sector}</td>
                     <td class="px-4 py-2 text-right">${s.companies}</td>
-                    <td class="px-4 py-2 text-right">${(s.total_sales_cr / 1000).toFixed(0)}K Cr</td>
-                    <td class="px-4 py-2 text-right">${(s.total_profit_cr / 1000).toFixed(0)}K Cr</td>
-                    <td class="px-4 py-2 text-right">${s.avg_opm_pct}%</td>
+                    <td class="px-4 py-2 text-right">--</td>
+                    <td class="px-4 py-2 text-right">--</td>
+                    <td class="px-4 py-2 text-right">--</td>
                 </tr>
             `).join('');
-        });
+            
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('sector-table').innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Error loading data</td></tr>';
+        }
+    }
+    
+    loadSectorData();
 </script>
 {% endblock %}
