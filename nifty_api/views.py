@@ -72,3 +72,20 @@ def top_performers_page(request):
 
 def sector_analysis_page(request):
     return render(request, "sector_analysis.html")
+@csrf_exempt
+def company_financials(request, symbol):
+    """Get historical financial data for a company"""
+    historical_data = {
+        "TCS": [
+            {'year': 'Mar 2024', 'sales': 240000, 'net_profit': 45000, 'opm': 25.5, 'eps': 125.00},
+            {'year': 'Mar 2023', 'sales': 215000, 'net_profit': 40000, 'opm': 24.8, 'eps': 112.00},
+        ],
+        "RELIANCE": [
+            {'year': 'Mar 2024', 'sales': 800000, 'net_profit': 68000, 'opm': 12.5, 'eps': 102.00},
+            {'year': 'Mar 2023', 'sales': 750000, 'net_profit': 62000, 'opm': 11.8, 'eps': 93.00},
+        ],
+    }
+    symbol_upper = symbol.upper()
+    if symbol_upper in historical_data:
+        return JsonResponse({'symbol': symbol_upper, 'historical_data': historical_data[symbol_upper]})
+    return JsonResponse({'error': 'Financial data not found'}, status=404)
