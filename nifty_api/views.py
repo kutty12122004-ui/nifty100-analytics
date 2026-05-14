@@ -1,7 +1,7 @@
 ﻿from django.http import JsonResponse
 from django.shortcuts import render
 from django.db.models import Sum, Avg, Count
-from .models import DimCompany, DimYear, FactProfitLoss
+from .models import DimCompany, DimYear, FactProfitLoss, FactBalanceSheet
 
 def health_check(request):
     return JsonResponse({"status": "ok", "message": "API is running", "companies": DimCompany.objects.count()})
@@ -22,7 +22,10 @@ def company_list(request):
 def dashboard(request):
     total_companies = DimCompany.objects.count()
     sectors_count = DimCompany.objects.exclude(sector="").values("sector").distinct().count()
+    
+    # REAL COUNTS FROM DATABASE
     pl_count = FactProfitLoss.objects.count()
+    bs_count = FactBalanceSheet.objects.count()
     years_count = DimYear.objects.count()
     
     financial_data = FactProfitLoss.objects.aggregate(
@@ -45,7 +48,7 @@ def dashboard(request):
         "total_revenue": formatted_revenue,
         "avg_opm": f"{avg_opm:.1f}%",
         "pl_count": pl_count,
-        "bs_count": 0,
+        "bs_count": bs_count,
         "years_count": years_count,
     }
     return render(request, "dashboard.html", context)
