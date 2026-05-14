@@ -11,4 +11,6 @@ urlpatterns = [
     path('api/health/', views.health_check, name='health_check'),
     path('api/companies/', views.company_list, name='company_list'),
     path('api/companies/<str:symbol>/', views.company_detail, name='company_detail'),
+    path('api/top-performers/', views.top_performers, name='top_performers'),
+    path('api/sector-analysis/', views.sector_analysis, name='sector_analysis'),
 ]
