@@ -28,7 +28,7 @@ class DimYear(models.Model):
 class FactProfitLoss(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.ForeignKey(DimCompany, on_delete=models.DO_NOTHING, db_column='symbol')
-    year = models.ForeignKey(DimYear, on_delete=models.DO_NOTHING, db_column='year_id')
+    year = models.ForeignKey(DimYear, on_delete=models.DO_NOTHING, db_column='year')
     sales = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
     net_profit = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
     opm_pct = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -36,20 +36,6 @@ class FactProfitLoss(models.Model):
     class Meta:
         managed = False
         db_table = 'nifty_api_factprofitloss'
-    
-    def __str__(self):
-        return f"{self.symbol.symbol} - {self.year.year_label}"
-
-class FactBalanceSheet(models.Model):
-    id = models.AutoField(primary_key=True)
-    symbol = models.ForeignKey(DimCompany, on_delete=models.DO_NOTHING, db_column='symbol')
-    year = models.ForeignKey(DimYear, on_delete=models.DO_NOTHING, db_column='year_id')
-    total_assets = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
-    borrowings = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
-    
-    class Meta:
-        managed = False
-        db_table = 'nifty_api_factbalancesheet'
     
     def __str__(self):
         return f"{self.symbol.symbol} - {self.year.year_label}"

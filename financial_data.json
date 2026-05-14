@@ -1,0 +1,492 @@
+{
+  "ABB": {
+    "revenue_cr": 5849.0,
+    "net_profit_cr": 1201.0,
+    "opm_pct": 25.0
+  },
+  "ADANIENSOL": {
+    "revenue_cr": 16607.0,
+    "net_profit_cr": 1196.0,
+    "opm_pct": 30.0
+  },
+  "ADANIENT": {
+    "revenue_cr": 96421.0,
+    "net_profit_cr": 3335.0,
+    "opm_pct": 12.0
+  },
+  "ADANIGREEN": {
+    "revenue_cr": 9220.0,
+    "net_profit_cr": 1260.0,
+    "opm_pct": 79.0
+  },
+  "ADANIPORTS": {
+    "revenue_cr": 26711.0,
+    "net_profit_cr": 8104.0,
+    "opm_pct": 58.0
+  },
+  "ADANIPOWER": {
+    "revenue_cr": 50351.0,
+    "net_profit_cr": 20829.0,
+    "opm_pct": 36.0
+  },
+  "AMBUJACEM": {
+    "revenue_cr": 33160.0,
+    "net_profit_cr": 4738.0,
+    "opm_pct": 19.0
+  },
+  "APOLLOHOSP": {
+    "revenue_cr": 19059.0,
+    "net_profit_cr": 935.0,
+    "opm_pct": 13.0
+  },
+  "ASIANPAINT": {
+    "revenue_cr": 35495.0,
+    "net_profit_cr": 5558.0,
+    "opm_pct": 21.0
+  },
+  "ATGL": {
+    "revenue_cr": 4475.0,
+    "net_profit_cr": 668.0,
+    "opm_pct": 25.0
+  },
+  "BAJAJ-AUTO": {
+    "revenue_cr": 44870.0,
+    "net_profit_cr": 7708.0,
+    "opm_pct": 20.0
+  },
+  "AXISBANK": {
+    "revenue_cr": 109369.0,
+    "net_profit_cr": 24861.0,
+    "opm_pct": 11952.0
+  },
+  "BAJAJFINSV": {
+    "revenue_cr": 110382.0,
+    "net_profit_cr": 15595.0,
+    "opm_pct": 37.0
+  },
+  "BAJAJHLDNG": {
+    "revenue_cr": 1702.0,
+    "net_profit_cr": 7365.0,
+    "opm_pct": 92.0
+  },
+  "BAJFINANCE": {
+    "revenue_cr": 54972.0,
+    "net_profit_cr": 14451.0,
+    "opm_pct": 19987.0
+  },
+  "BANKBARODA": {
+    "revenue_cr": 118379.0,
+    "net_profit_cr": 18869.0,
+    "opm_pct": 4102.0
+  },
+  "BHARTIARTL": {
+    "revenue_cr": 149982.0,
+    "net_profit_cr": 8558.0,
+    "opm_pct": 52.0
+  },
+  "BEL": {
+    "revenue_cr": 20268.0,
+    "net_profit_cr": 3985.0,
+    "opm_pct": 25.0
+  },
+  "BHEL": {
+    "revenue_cr": 23893.0,
+    "net_profit_cr": 282.0,
+    "opm_pct": 3.0
+  },
+  "BOSCHLTD": {
+    "revenue_cr": 16727.0,
+    "net_profit_cr": 2490.0,
+    "opm_pct": 13.0
+  },
+  "BPCL": {
+    "revenue_cr": 448083.0,
+    "net_profit_cr": 26859.0,
+    "opm_pct": 10.0
+  },
+  "BRITANNIA": {
+    "revenue_cr": 16769.0,
+    "net_profit_cr": 2134.0,
+    "opm_pct": 19.0
+  },
+  "CANBK": {
+    "revenue_cr": 110519.0,
+    "net_profit_cr": 15401.0,
+    "opm_pct": -7745.0
+  },
+  "CHOLAFIN": {
+    "revenue_cr": 19163.0,
+    "net_profit_cr": 3420.0,
+    "opm_pct": 4548.0
+  },
+  "CIPLA": {
+    "revenue_cr": 25774.0,
+    "net_profit_cr": 4154.0,
+    "opm_pct": 6291.0
+  },
+  "COALINDIA": {
+    "revenue_cr": 142324.0,
+    "net_profit_cr": 37369.0,
+    "opm_pct": 47971.0
+  },
+  "DABUR": {
+    "revenue_cr": 12404.0,
+    "net_profit_cr": 1811.0,
+    "opm_pct": 19.0
+  },
+  "DIVISLAB": {
+    "revenue_cr": 7845.0,
+    "net_profit_cr": 1600.0,
+    "opm_pct": 28.0
+  },
+  "DLF": {
+    "revenue_cr": 6427.0,
+    "net_profit_cr": 2724.0,
+    "opm_pct": 33.0
+  },
+  "DMART": {
+    "revenue_cr": 50789.0,
+    "net_profit_cr": 2536.0,
+    "opm_pct": 8.0
+  },
+  "DRREDDY": {
+    "revenue_cr": 28011.0,
+    "net_profit_cr": 5578.0,
+    "opm_pct": 28.0
+  },
+  "EICHERMOT": {
+    "revenue_cr": 16536.0,
+    "net_profit_cr": 4001.0,
+    "opm_pct": 26.0
+  },
+  "GAIL": {
+    "revenue_cr": 133228.0,
+    "net_profit_cr": 9903.0,
+    "opm_pct": 11.0
+  },
+  "GODREJCP": {
+    "revenue_cr": 14096.0,
+    "net_profit_cr": -561.0,
+    "opm_pct": 21.0
+  },
+  "GRASIM": {
+    "revenue_cr": 130978.0,
+    "net_profit_cr": 9926.0,
+    "opm_pct": 21.0
+  },
+  "HAL": {
+    "revenue_cr": 30381.0,
+    "net_profit_cr": 7595.0,
+    "opm_pct": 32.0
+  },
+  "HAVELLS": {
+    "revenue_cr": 18590.0,
+    "net_profit_cr": 1271.0,
+    "opm_pct": 10.0
+  },
+  "HCLTECH": {
+    "revenue_cr": 109913.0,
+    "net_profit_cr": 15710.0,
+    "opm_pct": 22.0
+  },
+  "HDFCBANK": {
+    "revenue_cr": 283649.0,
+    "net_profit_cr": 65446.0,
+    "opm_pct": -44685.0
+  },
+  "HDFCLIFE": {
+    "revenue_cr": 101482.0,
+    "net_profit_cr": 1574.0,
+    "opm_pct": 531.0
+  },
+  "HEROMOTOCO": {
+    "revenue_cr": 37789.0,
+    "net_profit_cr": 3742.0,
+    "opm_pct": 5235.0
+  },
+  "HINDALCO": {
+    "revenue_cr": 215962.0,
+    "net_profit_cr": 10155.0,
+    "opm_pct": 23872.0
+  },
+  "HINDUNILVR": {
+    "revenue_cr": 61896.0,
+    "net_profit_cr": 10282.0,
+    "opm_pct": 14659.0
+  },
+  "ICICIBANK": {
+    "revenue_cr": 159516.0,
+    "net_profit_cr": 46081.0,
+    "opm_pct": -14152.0
+  },
+  "ICICIGI": {
+    "revenue_cr": 20487.0,
+    "net_profit_cr": 1919.0,
+    "opm_pct": 2577.0
+  },
+  "ICICIPRULI": {
+    "revenue_cr": 90307.0,
+    "net_profit_cr": 851.0,
+    "opm_pct": -1829.0
+  },
+  "INDUSINDBK": {
+    "revenue_cr": 45748.0,
+    "net_profit_cr": 8950.0,
+    "opm_pct": 2978.0
+  },
+  "INFY": {
+    "revenue_cr": 153670.0,
+    "net_profit_cr": 26248.0,
+    "opm_pct": 24.0
+  },
+  "IOC": {
+    "revenue_cr": 776352.0,
+    "net_profit_cr": 43161.0,
+    "opm_pct": 10.0
+  },
+  "IRCTC": {
+    "revenue_cr": 4270.0,
+    "net_profit_cr": 1111.0,
+    "opm_pct": 34.0
+  },
+  "IRFC": {
+    "revenue_cr": 26645.0,
+    "net_profit_cr": 6412.0,
+    "opm_pct": 100.0
+  },
+  "ITC": {
+    "revenue_cr": 70866.0,
+    "net_profit_cr": 20751.0,
+    "opm_pct": 37.0
+  },
+  "JINDALSTEL": {
+    "revenue_cr": 50354.0,
+    "net_profit_cr": 5943.0,
+    "opm_pct": 20.0
+  },
+  "JIOFIN": {
+    "revenue_cr": 1855.0,
+    "net_profit_cr": 1605.0,
+    "opm_pct": 84.0
+  },
+  "JSWENERGY": {
+    "revenue_cr": 11486.0,
+    "net_profit_cr": 1725.0,
+    "opm_pct": 47.0
+  },
+  "JSWSTEEL": {
+    "revenue_cr": 175006.0,
+    "net_profit_cr": 8973.0,
+    "opm_pct": 16.0
+  },
+  "KOTAKBANK": {
+    "revenue_cr": 56237.0,
+    "net_profit_cr": 18213.0,
+    "opm_pct": -13382.0
+  },
+  "LICI": {
+    "revenue_cr": 845966.0,
+    "net_profit_cr": 40916.0,
+    "opm_pct": 4.0
+  },
+  "LODHA": {
+    "revenue_cr": 10316.0,
+    "net_profit_cr": 1554.0,
+    "opm_pct": 26.0
+  },
+  "LT": {
+    "revenue_cr": 221113.0,
+    "net_profit_cr": 15547.0,
+    "opm_pct": 14.0
+  },
+  "LTIM": {
+    "revenue_cr": 35517.0,
+    "net_profit_cr": 4585.0,
+    "opm_pct": 18.0
+  },
+  "M&M": {
+    "revenue_cr": 139078.0,
+    "net_profit_cr": 12270.0,
+    "opm_pct": 18.0
+  },
+  "MARUTI": {
+    "revenue_cr": 141858.0,
+    "net_profit_cr": 13488.0,
+    "opm_pct": 13.0
+  },
+  "MOTHERSON": {
+    "revenue_cr": 98692.0,
+    "net_profit_cr": 3020.0,
+    "opm_pct": 9.0
+  },
+  "NAUKRI": {
+    "revenue_cr": 2536.0,
+    "net_profit_cr": 595.0,
+    "opm_pct": 28.0
+  },
+  "NESTLEIND": {
+    "revenue_cr": 24394.0,
+    "net_profit_cr": 3933.0,
+    "opm_pct": 24.0
+  },
+  "NHPC": {
+    "revenue_cr": 9632.0,
+    "net_profit_cr": 4028.0,
+    "opm_pct": 50.0
+  },
+  "NTPC": {
+    "revenue_cr": 178501.0,
+    "net_profit_cr": 21332.0,
+    "opm_pct": 29.0
+  },
+  "ONGC": {
+    "revenue_cr": 591396.0,
+    "net_profit_cr": 57101.0,
+    "opm_pct": 17.0
+  },
+  "PFC": {
+    "revenue_cr": 91508.0,
+    "net_profit_cr": 26461.0,
+    "opm_pct": 37.0
+  },
+  "PIDILITIND": {
+    "revenue_cr": 12383.0,
+    "net_profit_cr": 1747.0,
+    "opm_pct": 22.0
+  },
+  "PNB": {
+    "revenue_cr": 109065.0,
+    "net_profit_cr": 9157.0,
+    "opm_pct": 0
+  },
+  "POWERGRID": {
+    "revenue_cr": 45843.0,
+    "net_profit_cr": 15573.0,
+    "opm_pct": 87.0
+  },
+  "RECLTD": {
+    "revenue_cr": 47517.0,
+    "net_profit_cr": 14145.0,
+    "opm_pct": 101.0
+  },
+  "RELIANCE": {
+    "revenue_cr": 899041.0,
+    "net_profit_cr": 79020.0,
+    "opm_pct": 18.0
+  },
+  "SBILIFE": {
+    "revenue_cr": 131988.0,
+    "net_profit_cr": 1894.0,
+    "opm_pct": 0.0
+  },
+  "SBIN": {
+    "revenue_cr": 439189.0,
+    "net_profit_cr": 69543.0,
+    "opm_pct": -14.0
+  },
+  "SHREECEM": {
+    "revenue_cr": 20521.0,
+    "net_profit_cr": 1733.0,
+    "opm_pct": 22.0
+  },
+  "SHRIRAMFIN": {
+    "revenue_cr": 36388.0,
+    "net_profit_cr": 7399.0,
+    "opm_pct": 29.0
+  },
+  "SUNPHARMA": {
+    "revenue_cr": 48497.0,
+    "net_profit_cr": 9610.0,
+    "opm_pct": 28.0
+  },
+  "TATACONSUM": {
+    "revenue_cr": 15206.0,
+    "net_profit_cr": 1215.0,
+    "opm_pct": 15.0
+  },
+  "TATAMOTORS": {
+    "revenue_cr": 437928.0,
+    "net_profit_cr": 31807.0,
+    "opm_pct": 14.0
+  },
+  "TATAPOWER": {
+    "revenue_cr": 61449.0,
+    "net_profit_cr": 4280.0,
+    "opm_pct": 17.0
+  },
+  "TATASTEEL": {
+    "revenue_cr": 229171.0,
+    "net_profit_cr": -4910.0,
+    "opm_pct": 10.0
+  },
+  "TCS": {
+    "revenue_cr": 240893.0,
+    "net_profit_cr": 46099.0,
+    "opm_pct": 27.0
+  },
+  "TECHM": {
+    "revenue_cr": 51996.0,
+    "net_profit_cr": 2397.0,
+    "opm_pct": 9.0
+  },
+  "TITAN": {
+    "revenue_cr": 51084.0,
+    "net_profit_cr": 3496.0,
+    "opm_pct": 10.0
+  },
+  "TORNTPHARM": {
+    "revenue_cr": 10728.0,
+    "net_profit_cr": 1656.0,
+    "opm_pct": 31.0
+  },
+  "TRENT": {
+    "revenue_cr": 12375.0,
+    "net_profit_cr": 1477.0,
+    "opm_pct": 16.0
+  },
+  "TVSMOTOR": {
+    "revenue_cr": 39145.0,
+    "net_profit_cr": 1779.0,
+    "opm_pct": 14.0
+  },
+  "ULTRACEMCO": {
+    "revenue_cr": 70908.0,
+    "net_profit_cr": 7004.0,
+    "opm_pct": 18.0
+  },
+  "UNIONBANK": {
+    "revenue_cr": 100376.0,
+    "net_profit_cr": 13797.0,
+    "opm_pct": 5.0
+  },
+  "UNITDSPR": {
+    "revenue_cr": 11321.0,
+    "net_profit_cr": 1408.0,
+    "opm_pct": 18.0
+  },
+  "VEDL": {
+    "revenue_cr": 143727.0,
+    "net_profit_cr": 7539.0,
+    "opm_pct": 25.0
+  },
+  "WIPRO": {
+    "revenue_cr": 89760.0,
+    "net_profit_cr": 11112.0,
+    "opm_pct": 19.0
+  },
+  "ZOMATO": {
+    "revenue_cr": 12114.0,
+    "net_profit_cr": 351.0,
+    "opm_pct": 0.0
+  },
+  "ZYDUSLIFE": {
+    "revenue_cr": 19547.0,
+    "net_profit_cr": 3973.0,
+    "opm_pct": 28.0
+  },
+  "INDIGO": {
+    "revenue_cr": 68904.0,
+    "net_profit_cr": 8167.0,
+    "opm_pct": 16331.0
+  }
+}
