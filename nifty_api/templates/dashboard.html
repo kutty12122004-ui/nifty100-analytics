@@ -12,46 +12,162 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
             <p class="text-sm opacity-90">Total Companies</p>
-            <p class="text-3xl font-bold mt-2">{{ total_companies|default:"0" }}</p>
+            <p class="text-3xl font-bold mt-2" id="total-companies">0</p>
         </div>
         <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white">
             <p class="text-sm opacity-90">Total Sectors</p>
-            <p class="text-3xl font-bold mt-2">{{ total_sectors|default:"0" }}</p>
+            <p class="text-3xl font-bold mt-2" id="total-sectors">0</p>
         </div>
         <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white">
             <p class="text-sm opacity-90">Total Revenue</p>
-            <p class="text-3xl font-bold mt-2">{{ total_revenue|default:"0" }}</p>
+            <p class="text-3xl font-bold mt-2" id="total-revenue">0</p>
         </div>
         <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-6 text-white">
             <p class="text-sm opacity-90">Avg OPM</p>
-            <p class="text-3xl font-bold mt-2">{{ avg_opm|default:"0%" }}</p>
+            <p class="text-3xl font-bold mt-2" id="avg-opm">0%</p>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Top Performers -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">🏆 Top 10 Companies by Profit</h2>
+            <div id="top-performers-list" class="space-y-2">
+                <div class="text-center py-4 text-gray-500">Loading...</div>
+            </div>
+            <div class="mt-4 text-center">
+                <a href="/top-performers/" class="text-blue-600 hover:text-blue-800 text-sm">View All →</a>
+            </div>
+        </div>
+        
+        <!-- Sector Analysis -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">📊 Sector-wise Profit Distribution</h2>
+            <canvas id="sector-chart" height="250"></canvas>
+            <div class="mt-4 text-center">
+                <a href="/sector-analysis/" class="text-blue-600 hover:text-blue-800 text-sm">View Details →</a>
+            </div>
         </div>
     </div>
     
     <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">Welcome to Nifty 100 Analytics</h2>
-        <p class="text-gray-600 mb-4">Use the navigation menu to explore companies, top performers, and sector analysis.</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-gray-50 p-4 rounded">
-            <div class="text-center">
-                <p class="text-gray-500 text-sm">P&L Records</p>
-                <p class="text-2xl font-bold text-blue-600">{{ pl_count|default:"0" }}</p>
-            </div>
-            <div class="text-center">
-                <p class="text-gray-500 text-sm">Balance Sheet Records</p>
-                <p class="text-2xl font-bold text-green-600">{{ bs_count|default:"0" }}</p>
-            </div>
-            <div class="text-center">
-                <p class="text-gray-500 text-sm">Years of Data</p>
-                <p class="text-2xl font-bold text-purple-600">{{ years_count|default:"0" }}</p>
-            </div>
-        </div>
-        
-        <div class="mt-4 flex gap-4">
-            <a href="/companies/" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">View Companies</a>
-            <a href="/top-performers/" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">Top Performers</a>
-            <a href="/sector-analysis/" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition">Sector Analysis</a>
+        <h2 class="text-xl font-bold text-gray-800 mb-4">📈 Quick Links</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="/companies/" class="bg-blue-500 text-white text-center px-4 py-3 rounded-lg hover:bg-blue-600 transition">View All 92 Companies</a>
+            <a href="/top-performers/" class="bg-green-500 text-white text-center px-4 py-3 rounded-lg hover:bg-green-600 transition">Top Performers</a>
+            <a href="/sector-analysis/" class="bg-purple-500 text-white text-center px-4 py-3 rounded-lg hover:bg-purple-600 transition">Sector Analysis</a>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Fetch top performers
+    fetch('/api/top-performers/')
+        .then(response => response.json())
+        .then(data => {
+            const performers = data.top_performers || [];
+            const container = document.getElementById('top-performers-list');
+            
+            if (performers.length === 0) {
+                container.innerHTML = '<div class="text-center py-4 text-gray-500">No data available</div>';
+                return;
+            }
+            
+            container.innerHTML = performers.slice(0, 10).map((p, idx) => `
+                <div class="flex justify-between items-center p-2 border-b hover:bg-gray-50 cursor-pointer" 
+                     onclick="window.location.href='/company/${p.symbol}/'">
+                    <div class="flex items-center">
+                        <span class="text-xl mr-3">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`}</span>
+                        <div>
+                            <div class="font-semibold">${p.symbol}</div>
+                            <div class="text-sm text-gray-500">${p.company_name.substring(0, 30)}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-green-600 font-semibold">₹${(p.profit_cr / 1000).toFixed(0)}K Cr</div>
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(error => {
+            console.error('Error fetching top performers:', error);
+            document.getElementById('top-performers-list').innerHTML = '<div class="text-center py-4 text-red-500">Error loading data</div>';
+        });
+    
+    // Fetch sector analysis for chart
+    fetch('/api/sector-analysis/')
+        .then(response => response.json())
+        .then(data => {
+            const sectors = data.sectors || [];
+            
+            if (sectors.length === 0) {
+                document.getElementById('sector-chart').parentElement.innerHTML = '<div class="text-center py-8 text-gray-500">No sector data available</div>';
+                return;
+            }
+            
+            const ctx = document.getElementById('sector-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: sectors.map(s => s.sector),
+                    datasets: [{
+                        data: sectors.map(s => s.total_profit_cr),
+                        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ₹${(value / 1000).toFixed(0)}K Cr`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching sector data:', error);
+        });
+    
+    // Fetch dashboard stats
+    Promise.all([
+        fetch('/api/companies/').then(r => r.json()),
+        fetch('/api/sector-analysis/').then(r => r.json()),
+        fetch('/api/top-performers/').then(r => r.json())
+    ]).then(([companiesData, sectorData, performersData]) => {
+        // Total companies
+        document.getElementById('total-companies').textContent = companiesData.total || 0;
+        
+        // Total sectors
+        const sectors = sectorData.sectors || [];
+        document.getElementById('total-sectors').textContent = sectors.length;
+        
+        // Total revenue (sum of all company revenues)
+        const companies = companiesData.companies || [];
+        const totalRev = companies.reduce((sum, c) => sum + (c.revenue_cr || 0), 0);
+        document.getElementById('total-revenue').textContent = (totalRev / 100000).toFixed(1) + 'L Cr';
+        
+        // Avg OPM
+        const performers = performersData.top_performers || [];
+        if (performers.length > 0) {
+            const avgOpm = performers.reduce((sum, p) => sum + (p.opm_pct || 0), 0) / performers.length;
+            document.getElementById('avg-opm').textContent = avgOpm.toFixed(1) + '%';
+        }
+    }).catch(error => {
+        console.error('Error fetching stats:', error);
+    });
+</script>
 {% endblock %}

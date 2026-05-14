@@ -1,85 +1,121 @@
 ﻿from django.http import JsonResponse
 from django.shortcuts import render
+from django.db.models import Sum, Avg, Count
+from .models import DimCompany, DimYear, FactProfitLoss
 
-# ========== ALL 92 NIFTY COMPANIES (HARDCODED) ==========
-ALL_COMPANIES = [
-    {"symbol": "RELIANCE", "company_name": "Reliance Industries", "sector": "Energy", "revenue_cr": 800000, "net_profit_cr": 68000, "opm_pct": 12.5},
-    {"symbol": "TCS", "company_name": "Tata Consultancy Services", "sector": "IT", "revenue_cr": 240000, "net_profit_cr": 45000, "opm_pct": 25.5},
-    {"symbol": "SBIN", "company_name": "State Bank of India", "sector": "Banking", "revenue_cr": 400000, "net_profit_cr": 55000, "opm_pct": 15.5},
-    {"symbol": "HDFCBANK", "company_name": "HDFC Bank", "sector": "Banking", "revenue_cr": 180000, "net_profit_cr": 35000, "opm_pct": 20.5},
-    {"symbol": "INFY", "company_name": "Infosys", "sector": "IT", "revenue_cr": 150000, "net_profit_cr": 28000, "opm_pct": 24.5},
-    {"symbol": "ICICIBANK", "company_name": "ICICI Bank", "sector": "Banking", "revenue_cr": 150000, "net_profit_cr": 32000, "opm_pct": 18.5},
-    {"symbol": "TATAMOTORS", "company_name": "Tata Motors", "sector": "Auto", "revenue_cr": 350000, "net_profit_cr": 28000, "opm_pct": 8.5},
-    {"symbol": "ONGC", "company_name": "ONGC", "sector": "Energy", "revenue_cr": 500000, "net_profit_cr": 40000, "opm_pct": 14.0},
-    {"symbol": "ITC", "company_name": "ITC Limited", "sector": "FMCG", "revenue_cr": 70000, "net_profit_cr": 20000, "opm_pct": 28.5},
-    {"symbol": "HINDUNILVR", "company_name": "Hindustan Unilever", "sector": "FMCG", "revenue_cr": 60000, "net_profit_cr": 10000, "opm_pct": 19.5},
-    {"symbol": "WIPRO", "company_name": "Wipro", "sector": "IT", "revenue_cr": 90000, "net_profit_cr": 15000, "opm_pct": 22.0},
-    {"symbol": "HCLTECH", "company_name": "HCL Technologies", "sector": "IT", "revenue_cr": 120000, "net_profit_cr": 22000, "opm_pct": 23.0},
-    {"symbol": "KOTAKBANK", "company_name": "Kotak Mahindra Bank", "sector": "Banking", "revenue_cr": 80000, "net_profit_cr": 18000, "opm_pct": 22.0},
-    {"symbol": "AXISBANK", "company_name": "Axis Bank", "sector": "Banking", "revenue_cr": 95000, "net_profit_cr": 15000, "opm_pct": 17.8},
-    {"symbol": "BAJFINANCE", "company_name": "Bajaj Finance", "sector": "NBFC", "revenue_cr": 50000, "net_profit_cr": 12000, "opm_pct": 24.0},
-]
-
-# ========== API VIEWS ==========
 def health_check(request):
-    return JsonResponse({"status": "ok", "message": "API is running", "companies": len(ALL_COMPANIES)})
+    return JsonResponse({
+        "status": "ok",
+        "companies": DimCompany.objects.count(),
+        "pl_records": FactProfitLoss.objects.count()
+    })
 
 def api_root(request):
-    return JsonResponse({"message": "Nifty 100 Financial Intelligence API", "total_companies": len(ALL_COMPANIES)})
+    return JsonResponse({
+        "message": "Nifty 100 Financial Intelligence API",
+        "total_companies": DimCompany.objects.count()
+    })
 
 def company_list(request):
-    return JsonResponse({"success": True, "total": len(ALL_COMPANIES), "companies": ALL_COMPANIES})
+    companies = DimCompany.objects.all().values("symbol", "company_name", "sector", "face_value", "book_value")
+    return JsonResponse({"success": True, "total": len(companies), "companies": list(companies)})
 
 def company_detail(request, symbol):
-    for c in ALL_COMPANIES:
-        if c["symbol"] == symbol.upper():
-            return JsonResponse(c)
-    return JsonResponse({"error": "Not found"}, status=404)
+    try:
+        company = DimCompany.objects.get(symbol=symbol.upper())
+        return JsonResponse({
+            "symbol": company.symbol,
+            "company_name": company.company_name,
+            "sector": company.sector,
+            "face_value": float(company.face_value) if company.face_value else None,
+            "book_value": float(company.book_value) if company.book_value else None,
+        })
+    except DimCompany.DoesNotExist:
+        return JsonResponse({"error": "Not found"}, status=404)
 
 def top_performers(request):
-    sorted_list = sorted(ALL_COMPANIES, key=lambda x: x["net_profit_cr"], reverse=True)[:15]
-    performers = []
-    for rank, c in enumerate(sorted_list, 1):
-        performers.append({"rank": rank, "symbol": c["symbol"], "company_name": c["company_name"], "net_profit_cr": c["net_profit_cr"], "growth": round(c["opm_pct"] * 0.8, 1)})
-    return JsonResponse({"top_performers": performers})
+    # Get latest year
+    latest_year = DimYear.objects.order_by('-year_label').first()
+    if latest_year:
+        top = FactProfitLoss.objects.filter(year=latest_year).values(
+            "symbol__symbol", "symbol__company_name", "symbol__sector"
+        ).annotate(
+            profit=Sum("net_profit"),
+            opm=Avg("opm_pct")
+        ).order_by("-profit")[:15]
+    else:
+        top = FactProfitLoss.objects.values(
+            "symbol__symbol", "symbol__company_name", "symbol__sector"
+        ).annotate(
+            profit=Sum("net_profit"),
+            opm=Avg("opm_pct")
+        ).order_by("-profit")[:15]
+    
+    result = []
+    for idx, t in enumerate(top, 1):
+        result.append({
+            "rank": idx,
+            "symbol": t["symbol__symbol"],
+            "company_name": t["symbol__company_name"],
+            "sector": t["symbol__sector"],
+            "profit_cr": float(t["profit"]) if t["profit"] else 0,
+            "opm_pct": float(t["opm"]) if t["opm"] else 0
+        })
+    return JsonResponse({"top_performers": result})
 
 def sector_analysis(request):
-    sectors = {}
-    for c in ALL_COMPANIES:
-        sec = c["sector"]
-        if sec not in sectors:
-            sectors[sec] = {"count": 0, "total_revenue": 0, "total_profit": 0, "total_opm": 0}
-        sectors[sec]["count"] += 1
-        sectors[sec]["total_revenue"] += c["revenue_cr"]
-        sectors[sec]["total_profit"] += c["net_profit_cr"]
-        sectors[sec]["total_opm"] += c["opm_pct"]
-    result = [{"sector": s, "companies": d["count"], "total_revenue_cr": d["total_revenue"], "total_profit_cr": d["total_profit"], "avg_opm": d["total_opm"] / d["count"]} for s, d in sectors.items()]
-    result.sort(key=lambda x: x["total_profit_cr"], reverse=True)
+    sectors = FactProfitLoss.objects.values("symbol__sector").annotate(
+        total_revenue=Sum("sales"),
+        total_profit=Sum("net_profit"),
+        avg_opm=Avg("opm_pct"),
+        companies_count=Count("symbol", distinct=True)
+    ).order_by("-total_profit")
+    
+    result = []
+    for s in sectors:
+        if s["symbol__sector"]:
+            result.append({
+                "sector": s["symbol__sector"],
+                "total_revenue_cr": float(s["total_revenue"]) if s["total_revenue"] else 0,
+                "total_profit_cr": float(s["total_profit"]) if s["total_profit"] else 0,
+                "avg_opm": float(s["avg_opm"]) if s["avg_opm"] else 0,
+                "companies": s["companies_count"]
+            })
     return JsonResponse({"sectors": result})
 
-# ========== PAGE VIEWS ==========
 def dashboard(request):
-    total_revenue = sum(c["revenue_cr"] for c in ALL_COMPANIES)
-    total_profit = sum(c["net_profit_cr"] for c in ALL_COMPANIES)
-    avg_opm = sum(c["opm_pct"] for c in ALL_COMPANIES) / len(ALL_COMPANIES)
-    sectors = len(set(c["sector"] for c in ALL_COMPANIES))
+    companies = DimCompany.objects.all()
+    total_companies = companies.count()
+    sectors_count = companies.exclude(sector="").values("sector").distinct().count()
+    pl_count = FactProfitLoss.objects.count()
+    years_count = DimYear.objects.count()
+    
+    financial = FactProfitLoss.objects.aggregate(
+        total_sales=Sum("sales"),
+        avg_opm=Avg("opm_pct")
+    )
+    
+    total_sales = financial.get("total_sales") or 0
+    avg_opm = financial.get("avg_opm") or 0
+    
     context = {
-        "total_companies": len(ALL_COMPANIES),
-        "total_sectors": sectors,
-        "total_revenue": f"{total_revenue / 100000:.1f}L Cr",
+        "total_companies": total_companies,
+        "total_sectors": sectors_count,
+        "total_revenue": f"{total_sales / 100000:.1f}L Cr" if total_sales > 0 else "0",
         "avg_opm": f"{avg_opm:.1f}%",
-        "pl_count": 1276,
-        "bs_count": 1312,
-        "years_count": 26,
+        "pl_count": pl_count,
+        "bs_count": 0,
+        "years_count": years_count,
     }
     return render(request, "dashboard.html", context)
 
 def companies_list_page(request):
-    return render(request, "companies.html", {"companies": ALL_COMPANIES})
+    companies = DimCompany.objects.all().order_by("company_name")
+    return render(request, "companies.html", {"companies": companies})
 
 def company_detail_page(request, symbol):
-    company = next((c for c in ALL_COMPANIES if c["symbol"] == symbol.upper()), None)
-    return render(request, "company_detail.html", {"company": company})
+    company = DimCompany.objects.filter(symbol=symbol.upper()).first()
+    return render(request, "company_detail.html", {"company": company, "symbol": symbol.upper()})
 
 def top_performers_page(request):
     return render(request, "top_performers.html")
