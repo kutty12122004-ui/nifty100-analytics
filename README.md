@@ -54,7 +54,7 @@ A comprehensive financial analytics platform for India's top 100 publicly listed
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/nifty100-analytics.git
+git clone https://github.com/PALANIVEL R/nifty100-analytics.git
 cd nifty100-analytics
 
 # Install dependencies
