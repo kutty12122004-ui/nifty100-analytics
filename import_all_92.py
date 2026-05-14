@@ -3,21 +3,20 @@ import pandas as pd
 from pathlib import Path
 
 print("=" * 60)
-print("📊 IMPORTING EXCEL DATA TO SQLITE")
+print("📊 IMPORTING ALL 92 COMPANIES")
 print("=" * 60)
 
 conn = sqlite3.connect('db.sqlite3')
 cursor = conn.cursor()
 
-# Drop existing tables (use Django's expected table names)
+# Drop existing tables
 cursor.execute("DROP TABLE IF EXISTS nifty_api_dimcompany")
 cursor.execute("DROP TABLE IF EXISTS nifty_api_factprofitloss")
-cursor.execute("DROP TABLE IF EXISTS nifty_api_factbalancesheet")
 cursor.execute("DROP TABLE IF EXISTS nifty_api_dimyear")
 
 print("✅ Dropped old tables")
 
-# Create tables with Django's expected names
+# Create tables
 cursor.execute('''
     CREATE TABLE nifty_api_dimcompany (
         symbol TEXT PRIMARY KEY,
@@ -46,7 +45,7 @@ cursor.execute('''
     )
 ''')
 
-print("✅ Tables created with Django-compatible names")
+print("✅ Tables created")
 
 # Insert years
 print("\n📅 Adding years...")
@@ -56,42 +55,35 @@ print("✅ Years added")
 
 # Get year ID for 2024
 cursor.execute("SELECT year_id FROM nifty_api_dimyear WHERE year_label = '2024'")
-year_result = cursor.fetchone()
-year_id = year_result[0] if year_result else 1
+year_id = cursor.fetchone()[0]
 
-# Insert companies
-print("\n🏢 Adding companies...")
-companies = [
-    ("RELIANCE", "Reliance Industries", "Energy", 10, 800),
-    ("TCS", "Tata Consultancy Services", "IT", 1, 250),
-    ("SBIN", "State Bank of India", "Banking", 1, 280),
-    ("HDFCBANK", "HDFC Bank", "Banking", 1, 450),
-    ("INFY", "Infosys", "IT", 5, 180),
-    ("ICICIBANK", "ICICI Bank", "Banking", 2, 300),
-    ("TATAMOTORS", "Tata Motors", "Auto", 2, 95),
-    ("ONGC", "ONGC", "Energy", 5, 150),
-    ("ITC", "ITC Limited", "FMCG", 1, 85),
-    ("HINDUNILVR", "Hindustan Unilever", "FMCG", 1, 280),
-    ("WIPRO", "Wipro", "IT", 2, 120),
-    ("HCLTECH", "HCL Technologies", "IT", 2, 150),
-    ("KOTAKBANK", "Kotak Mahindra Bank", "Banking", 5, 220),
-    ("AXISBANK", "Axis Bank", "Banking", 2, 180),
-    ("BAJFINANCE", "Bajaj Finance", "NBFC", 2, 350),
-]
+# ========== IMPORT ALL 92 COMPANIES FROM EXCEL ==========
+print("\n🏢 Reading companies from Excel...")
+df = pd.read_excel('companies.xlsx', sheet_name='Companies', header=1)
+print(f"   Found {len(df)} companies in Excel")
 
-for c in companies:
-    cursor.execute('''
-        INSERT OR REPLACE INTO nifty_api_dimcompany 
-        (symbol, company_name, sector, face_value, book_value)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (c[0], c[1], c[2], c[3], c[4]))
+companies_added = 0
+for _, row in df.iterrows():
+    symbol = str(row.get('id', '')).strip()
+    if symbol and symbol != 'nan' and symbol != '':
+        company_name = str(row.get('company_name', ''))[:200]
+        sector = "Other"  # You can update sectors later
+        face_value = float(row.get('face_value', 0)) if pd.notna(row.get('face_value')) else None
+        book_value = float(row.get('book_value', 0)) if pd.notna(row.get('book_value')) else None
+        
+        cursor.execute('''
+            INSERT OR REPLACE INTO nifty_api_dimcompany 
+            (symbol, company_name, sector, face_value, book_value)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (symbol, company_name, sector, face_value, book_value))
+        companies_added += 1
 
-print(f"✅ Added {len(companies)} companies")
+print(f"✅ Added {companies_added} companies")
 
-# Insert P&L data
-print("\n📊 Adding P&L data...")
+# ========== ADD SAMPLE P&L DATA FOR TOP COMPANIES ==========
+print("\n📊 Adding P&L data for top companies...")
 
-# Financial data for 2024 (sales, net_profit, opm)
+# Financial data for major companies
 financial_data = [
     ("RELIANCE", 800000, 68000, 12.5),
     ("TCS", 240000, 45000, 25.5),
@@ -121,22 +113,18 @@ print(f"✅ Added {len(financial_data)} P&L records")
 
 conn.commit()
 
-# Verify
+# ========== VERIFICATION ==========
 cursor.execute("SELECT COUNT(*) FROM nifty_api_dimcompany")
 print(f"\n✅ Companies in database: {cursor.fetchone()[0]}")
 
 cursor.execute("SELECT COUNT(*) FROM nifty_api_factprofitloss")
 print(f"✅ P&L Records: {cursor.fetchone()[0]}")
 
-cursor.execute("SELECT COUNT(*) FROM nifty_api_dimyear")
-print(f"✅ Years: {cursor.fetchone()[0]}")
-
-# Calculate totals
-cursor.execute("SELECT SUM(sales), SUM(net_profit), AVG(opm_pct) FROM nifty_api_factprofitloss")
-result = cursor.fetchone()
-print(f"\n💰 Total Revenue: ₹{result[0]:,.0f} Cr")
-print(f"💰 Total Profit: ₹{result[1]:,.0f} Cr")
-print(f"📊 Avg OPM: {result[2]:.1f}%")
+# Show sample companies
+print("\n📋 Sample companies:")
+cursor.execute("SELECT symbol, company_name FROM nifty_api_dimcompany LIMIT 10")
+for row in cursor.fetchall():
+    print(f"   - {row[0]}: {row[1][:50]}")
 
 conn.close()
-print("\n✅ Import complete! Your database now has real financial data.")
+print("\n✅ Import complete! Now you have ALL 92 companies!")
